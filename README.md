@@ -8,6 +8,52 @@
 
 Our project is a web application that allows students and early-career researchers to efficiently find professors and researchers who are actively publishing in their fields of interest. The platform provides filtering tools to narrow down results by university, department, and academic discipline. It displays clear, concise information about a professor's recent publishing activity and provides users with publication history and contact details.
 
+## Getting Started
+
+### Prerequisites
+- Node.js (version 16 or higher)
+- npm (comes with Node.js)
+
+### Installation Steps
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/EmGeeDoubleU/NA-375.git
+   cd NA-375
+   ```
+
+2. **Install all dependencies**
+   ```bash
+   # Install root dependencies
+   npm install
+   
+   # Install server dependencies
+   cd server && npm install && cd ..
+   
+   # Install client dependencies
+   cd client && npm install && cd ..
+   ```
+
+3. **Start the development servers**
+   ```bash
+   # Start both client and server simultaneously
+   npm run dev
+   ```
+
+   Or start them separately:
+   ```bash
+   # Start server only (runs on port 5001)
+   npm run server
+   
+   # Start client only (runs on port 3000)
+   npm run client
+   ```
+
+4. **Access the application**
+   - **React Client**: http://localhost:3000
+   - **Express Server**: http://localhost:5001
+   - **API Health Check**: http://localhost:5001/api/health
+
 ## Core Features
 
 ### Search and Filtering
@@ -72,32 +118,6 @@ NA-375/
 └── README.md
 ```
 
-## Quick Start
-
-### 1. Install Dependencies
-
-```bash
-# Install all dependencies (root, server, and client)
-npm run install-all
-```
-
-### 2. Start Development Servers
-
-```bash
-# Start both client and server simultaneously
-npm run dev
-```
-
-Or start them separately:
-
-```bash
-# Start server only (runs on port 5001)
-npm run server
-
-# Start client only (runs on port 3000)
-npm run client
-```
-
 ## Available Scripts
 
 ### Root Directory
@@ -150,6 +170,25 @@ NODE_ENV=development
 SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Port already in use**: 
+   - Kill existing processes: `lsof -ti:3000 | xargs kill -9`
+   - Or use different ports by setting environment variables
+
+2. **Module not found errors**:
+   - Make sure all dependencies are installed: `npm run install-all`
+
+3. **React app not loading**:
+   - Check if the client is running on http://localhost:3000
+   - Check browser console for errors
+
+4. **Server not responding**:
+   - Check if the server is running on http://localhost:5001
+   - Test the health endpoint: `curl http://localhost:5001/api/health`
 
 ## License
 
