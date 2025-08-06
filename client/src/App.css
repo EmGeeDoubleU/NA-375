@@ -8,6 +8,7 @@
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 24px;
+  text-align: center;
 }
 
 .card-entry-container {
@@ -42,7 +43,51 @@
   color: black;
 }
 
+.card-buttons {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
 .contact-button {
   border: 2px solid black;
   border-radius: 25px;
 }
+
+.contact-button:hover {
+  background-color: white;
+  transform: translateY(-2px); 
+}
+
+.school-selection-buttons-container {
+  border: none;
+  background-color: #f7f7f7;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.subject-selection-buttons-container {
+  border: none;
+  background-color: #f7f7f7;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  padding: 10px;
+}
+
+.param-button {
+  white-space: nowrap;     
+  height: 20px;    
+  width: 250px;           
+  font-size: 12px;
+  border-radius: 20px;             
+}
+
+.param-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px); 
+}
+
