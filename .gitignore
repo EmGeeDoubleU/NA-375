@@ -135,4 +135,7 @@ nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
-.pytest_cache/ Scripts/
+.pytest_cache/
+
+# Data collection scripts (keep local only)
+Scripts/
