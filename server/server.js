@@ -5,6 +5,12 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5001;
 
+// Import routes
+const universitiesRoutes = require('./routes/universities');
+const departmentsRoutes = require('./routes/departments');
+const professorsRoutes = require('./routes/professors');
+const articlesRoutes = require('./routes/articles');
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -23,6 +29,12 @@ app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the API' });
 });
 
+// API routes
+app.use('/api/universities', universitiesRoutes);
+app.use('/api/departments', departmentsRoutes);
+app.use('/api/professors', professorsRoutes);
+app.use('/api/articles', articlesRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -37,4 +49,9 @@ app.use('*', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/api/health`);
+  console.log(`API endpoints:`);
+  console.log(`  - Universities: http://localhost:${PORT}/api/universities`);
+  console.log(`  - Departments: http://localhost:${PORT}/api/departments`);
+  console.log(`  - Professors: http://localhost:${PORT}/api/professors`);
+  console.log(`  - Articles: http://localhost:${PORT}/api/articles`);
 }); 
