@@ -190,6 +190,3 @@ SUPABASE_ANON_KEY=your_supabase_anon_key
    - Check if the server is running on http://localhost:5001
    - Test the health endpoint: `curl http://localhost:5001/api/health`
 
-## License
-
-MIT 
