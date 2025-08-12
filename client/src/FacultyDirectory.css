@@ -59,6 +59,46 @@
   color: #374151;
 }
 
+/* Sort Section */
+.sort-section {
+  margin-bottom: 30px;
+}
+
+.sort-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sort-button {
+  padding: 8px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 20px;
+  background-color: white;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.sort-button:hover {
+  border-color: #9ca3af;
+  background-color: #f9fafb;
+}
+
+.sort-button.active {
+  border-color: #1e3a8a;
+  background-color: #1e3a8a;
+  color: white;
+}
+
+.sort-button.active:hover {
+  background-color: #1e40af;
+}
+
 /* Professors Grid */
 .professors-grid {
   display: grid;
@@ -109,6 +149,34 @@
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid #e5e7eb;
+}
+
+/* Fallback avatar styles */
+.professor-avatar-fallback {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #e5e7eb;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+}
+
+.professor-avatar-initials {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #e5e7eb;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .professor-info {
@@ -217,6 +285,16 @@
     min-width: 80px;
   }
   
+  .sort-buttons {
+    gap: 8px;
+  }
+  
+  .sort-button {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-width: 100px;
+  }
+  
   .professor-card {
     margin-bottom: 16px;
   }
@@ -253,5 +331,10 @@
   .action-button {
     font-size: 13px;
     padding: 8px 12px;
+  }
+  
+  .sort-button {
+    min-width: 80px;
+    font-size: 11px;
   }
 } 

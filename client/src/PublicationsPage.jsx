@@ -10,6 +10,40 @@ const PublicationsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Function to generate initials from name
+  const getInitials = (name) => {
+    if (!name) return '?';
+    const names = name.split(' ');
+    if (names.length >= 2) {
+      return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+    }
+    return name[0].toUpperCase();
+  };
+
+  // Profile Photo Component with error handling
+  const ProfilePhoto = ({ professor }) => {
+    const [imageError, setImageError] = useState(false);
+    
+    // If no headshot or image failed to load, show initials
+    if (!professor.headshot || imageError) {
+      return (
+        <div className="profile-avatar-initials">
+          {getInitials(professor.name)}
+        </div>
+      );
+    }
+    
+    // Try to load the image, fallback to initials on error
+    return (
+      <img 
+        src={professor.headshot} 
+        alt={professor.name}
+        className="profile-avatar"
+        onError={() => setImageError(true)}
+      />
+    );
+  };
+
   useEffect(() => {
     fetchProfessorData();
   }, [professorId]);
@@ -70,14 +104,7 @@ const PublicationsPage = () => {
       {/* Professor Profile Section */}
       <div className="professor-profile">
         <div className="profile-header">
-          <img 
-            src={professor.headshot || '/default-avatar.png'} 
-            alt={professor.name}
-            className="profile-avatar"
-            onError={(e) => {
-              e.target.src = '/default-avatar.png';
-            }}
-          />
+          <ProfilePhoto professor={professor} />
           <div className="profile-info">
             <h1 className="profile-name">{professor.name}</h1>
             <p className="profile-position">{professor.position}</p>
@@ -154,7 +181,7 @@ const PublicationsPage = () => {
 
       {/* Publications List */}
       <div className="publications-section">
-        <h2>Publications ({publications.length})</h2>
+        <h2>Publications ({professor.total_papers})</h2>
         {publications.length > 0 ? (
           <div className="publications-list">
             {publications.map((publication, index) => (

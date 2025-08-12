@@ -14,6 +14,10 @@ const FacultyDirectory = () => {
   const [selectedUniversities, setSelectedUniversities] = useState([]);
   const [selectedFields, setSelectedFields] = useState([]);
   
+  // Sorting state
+  const [sortBy, setSortBy] = useState('name');
+  const [sortOrder, setSortOrder] = useState('asc');
+  
   // Available fields for filtering
   const availableFields = [
     "Computer Science", "Biology", "Chemistry", "Physics", 
@@ -28,6 +32,40 @@ const FacultyDirectory = () => {
     'Temple University': '#f59e0b',
     'Thomas Jefferson University': '#7c3aed',
     'Other': '#6b7280'
+  };
+
+  // Function to generate initials from name
+  const getInitials = (name) => {
+    if (!name) return '?';
+    const names = name.split(' ');
+    if (names.length >= 2) {
+      return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+    }
+    return name[0].toUpperCase();
+  };
+
+  // Profile Photo Component with error handling
+  const ProfilePhoto = ({ professor }) => {
+    const [imageError, setImageError] = useState(false);
+    
+    // If no headshot or image failed to load, show initials
+    if (!professor.headshot || imageError) {
+      return (
+        <div className="professor-avatar-initials">
+          {getInitials(professor.name)}
+        </div>
+      );
+    }
+    
+    // Try to load the image, fallback to initials on error
+    return (
+      <img 
+        src={professor.headshot} 
+        alt={professor.name}
+        className="professor-avatar"
+        onError={() => setImageError(true)}
+      />
+    );
   };
 
   useEffect(() => {
@@ -82,6 +120,15 @@ const FacultyDirectory = () => {
     navigate(`/professor/${professorId}`);
   };
 
+  const handleSort = (newSortBy) => {
+    if (sortBy === newSortBy) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(newSortBy);
+      setSortOrder('desc'); // Default to descending for metrics, ascending for names
+    }
+  };
+
   const getMetricColor = (value, type) => {
     if (type === 'published') {
       return value === 'Yes' ? '#10b981' : '#ef4444';
@@ -101,6 +148,44 @@ const FacultyDirectory = () => {
     return '#6b7280';
   };
 
+  const sortProfessors = (professorsToSort) => {
+    return [...professorsToSort].sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortBy) {
+        case 'name':
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+        case 'published_this_year':
+          aValue = a.published_this_year === 'Yes' ? 1 : 0;
+          bValue = b.published_this_year === 'Yes' ? 1 : 0;
+          break;
+        case 'published_last_year':
+          aValue = a.published_last_year === 'Yes' ? 1 : 0;
+          bValue = b.published_last_year === 'Yes' ? 1 : 0;
+          break;
+        case 'total_papers':
+          aValue = parseInt(a.total_papers) || 0;
+          bValue = parseInt(b.total_papers) || 0;
+          break;
+        case 'avg_papers_per_year':
+          aValue = parseFloat(a.avg_papers_per_year) || 0;
+          bValue = parseFloat(b.avg_papers_per_year) || 0;
+          break;
+        default:
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+      }
+      
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+      } else {
+        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+      }
+    });
+  };
+
   const filteredProfessors = professors.filter(professor => {
     const universityMatch = selectedUniversities.length === 0 || 
       selectedUniversities.includes(professor.university_name);
@@ -108,6 +193,8 @@ const FacultyDirectory = () => {
       selectedFields.includes(professor.department_name);
     return universityMatch && fieldMatch;
   });
+
+  const sortedProfessors = sortProfessors(filteredProfessors);
 
   if (loading) {
     return (
@@ -170,11 +257,48 @@ const FacultyDirectory = () => {
             ))}
           </div>
         </div>
+
+        {/* Sort Section */}
+        <div className="sort-section">
+          <h2 className="filter-title">Sort By</h2>
+          <div className="sort-buttons">
+            <button
+              className={`sort-button ${sortBy === 'name' ? 'active' : ''}`}
+              onClick={() => handleSort('name')}
+            >
+              Name {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
+            </button>
+            <button
+              className={`sort-button ${sortBy === 'published_this_year' ? 'active' : ''}`}
+              onClick={() => handleSort('published_this_year')}
+            >
+              Published This Year {sortBy === 'published_this_year' && (sortOrder === 'asc' ? '↑' : '↓')}
+            </button>
+            <button
+              className={`sort-button ${sortBy === 'published_last_year' ? 'active' : ''}`}
+              onClick={() => handleSort('published_last_year')}
+            >
+              Published Last Year {sortBy === 'published_last_year' && (sortOrder === 'asc' ? '↑' : '↓')}
+            </button>
+            <button
+              className={`sort-button ${sortBy === 'total_papers' ? 'active' : ''}`}
+              onClick={() => handleSort('total_papers')}
+            >
+              Total Publications {sortBy === 'total_papers' && (sortOrder === 'asc' ? '↑' : '↓')}
+            </button>
+            <button
+              className={`sort-button ${sortBy === 'avg_papers_per_year' ? 'active' : ''}`}
+              onClick={() => handleSort('avg_papers_per_year')}
+            >
+              Average Per Year {sortBy === 'avg_papers_per_year' && (sortOrder === 'asc' ? '↑' : '↓')}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Professors Grid */}
       <div className="professors-grid">
-        {filteredProfessors.map(professor => (
+        {sortedProfessors.map(professor => (
           <div key={professor.id} className="professor-card">
             <div 
               className="university-banner"
@@ -188,14 +312,7 @@ const FacultyDirectory = () => {
             
             <div className="professor-content">
               <div className="professor-header">
-                <img 
-                  src={professor.headshot || '/default-avatar.png'} 
-                  alt={professor.name}
-                  className="professor-avatar"
-                  onError={(e) => {
-                    e.target.src = '/default-avatar.png';
-                  }}
-                />
+                <ProfilePhoto professor={professor} />
                 <div className="professor-info">
                   <h3 className="professor-name">{professor.name}</h3>
                   <p className="professor-position">Position: {professor.position}</p>
@@ -256,7 +373,7 @@ const FacultyDirectory = () => {
         ))}
       </div>
 
-      {filteredProfessors.length === 0 && (
+      {sortedProfessors.length === 0 && (
         <div className="no-results">
           No professors found matching your filters.
         </div>

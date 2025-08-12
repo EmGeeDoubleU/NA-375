@@ -32,34 +32,65 @@ router.get('/', async (req, res) => {
       return res.status(500).json({ error: profError.message });
     }
 
-    // Get publication counts for each professor
-    const { data: articles, error: artError } = await supabase
-      .from('research_articles')
-      .select('professor_id, publication_year')
-      .order('publication_year', { ascending: false });
-
-    if (artError) {
-      return res.status(500).json({ error: artError.message });
-    }
-
-    // Calculate metrics for each professor
+    // Calculate metrics for each professor by doing direct queries
     const currentYear = new Date().getFullYear();
     const lastYear = currentYear - 1;
     
-    const professorsWithMetrics = professors.map(professor => {
-      const professorArticles = articles.filter(article => article.professor_id === professor.professor_id);
-      const totalPapers = professorArticles.length;
+    const professorsWithMetrics = await Promise.all(professors.map(async (professor) => {
+      // Direct query to count articles for this professor
+      const { data: articles, error: artError } = await supabase
+        .from('research_articles')
+        .select('publication_year')
+        .eq('professor_id', professor.professor_id);
       
-      const publishedThisYear = professorArticles.some(article => 
-        article.publication_year === currentYear.toString()
-      ) ? 'Yes' : 'No';
+      if (artError) {
+        console.error(`Error fetching articles for professor ${professor.professor_id}:`, artError);
+        return {
+          id: professor.professor_id,
+          name: professor.name,
+          position: professor.position,
+          email: professor.email,
+          phone: professor.phone,
+          headshot: professor.headshot,
+          google_scholar_link: professor.google_scholar_link,
+          department_name: professor.departments?.name || 'Unknown',
+          college_name: professor.departments?.colleges?.name || 'Unknown',
+          university_name: professor.departments?.colleges?.universities?.name || 'Unknown',
+          published_this_year: 'No',
+          published_last_year: 'No',
+          total_papers: 0,
+          avg_papers_per_year: 0
+        };
+      }
       
-      const publishedLastYear = professorArticles.some(article => 
-        article.publication_year === lastYear.toString()
-      ) ? 'Yes' : 'No';
+      const totalPapers = articles.length;
       
-      // Calculate average papers per year (simple calculation)
-      const avgPapersPerYear = totalPapers > 0 ? Math.round(totalPapers / 5) : 0; // Assuming 5 years average
+      // Filter articles by year
+      const articlesThisYear = articles.filter(article => 
+        article.publication_year && article.publication_year.toString() === currentYear.toString()
+      );
+      const articlesLastYear = articles.filter(article => 
+        article.publication_year && article.publication_year.toString() === lastYear.toString()
+      );
+      
+      const publishedThisYear = articlesThisYear.length > 0 ? 'Yes' : 'No';
+      const publishedLastYear = articlesLastYear.length > 0 ? 'Yes' : 'No';
+      
+      // Calculate average papers per year
+      let avgPapersPerYear = 0;
+      if (totalPapers > 0) {
+        // Get all unique years for this professor
+        const years = [...new Set(articles
+          .map(article => article.publication_year)
+          .filter(year => year && year !== 'No year' && year !== 'N/A')
+        )];
+        
+        if (years.length > 0) {
+          avgPapersPerYear = Math.round((totalPapers / years.length) * 10) / 10;
+        } else {
+          avgPapersPerYear = Math.round((totalPapers / 5) * 10) / 10;
+        }
+      }
 
       return {
         id: professor.professor_id,
@@ -77,7 +108,7 @@ router.get('/', async (req, res) => {
         total_papers: totalPapers,
         avg_papers_per_year: avgPapersPerYear
       };
-    });
+    }));
 
     res.json(professorsWithMetrics);
   } catch (error) {
@@ -120,7 +151,7 @@ router.get('/department/:departmentId', async (req, res) => {
     const professorIds = professors.map(p => p.professor_id);
     const { data: articles, error: artError } = await supabase
       .from('research_articles')
-      .select('professor_id, publication_year')
+      .select('professor_id, publication_year, title')
       .in('professor_id', professorIds)
       .order('publication_year', { ascending: false });
 
@@ -134,17 +165,37 @@ router.get('/department/:departmentId', async (req, res) => {
     
     const professorsWithMetrics = professors.map(professor => {
       const professorArticles = articles.filter(article => article.professor_id === professor.professor_id);
-      const totalPapers = professorArticles.length;
       
-      const publishedThisYear = professorArticles.some(article => 
-        article.publication_year === currentYear.toString()
-      ) ? 'Yes' : 'No';
+      // Deduplicate articles based on title to get accurate counts
+      const uniqueArticles = professorArticles.filter((article, index, self) => 
+        index === self.findIndex(a => a.title === article.title)
+      );
       
-      const publishedLastYear = professorArticles.some(article => 
-        article.publication_year === lastYear.toString()
-      ) ? 'Yes' : 'No';
+      const totalPapers = uniqueArticles.length;
       
-      const avgPapersPerYear = totalPapers > 0 ? Math.round(totalPapers / 5) : 0;
+      const articlesThisYear = uniqueArticles.filter(article => 
+        article.publication_year && article.publication_year.toString() === currentYear.toString()
+      );
+      const articlesLastYear = uniqueArticles.filter(article => 
+        article.publication_year && article.publication_year.toString() === lastYear.toString()
+      );
+      
+      const publishedThisYear = articlesThisYear.length > 0 ? 'Yes' : 'No';
+      const publishedLastYear = articlesLastYear.length > 0 ? 'Yes' : 'No';
+      
+      let avgPapersPerYear = 0;
+      if (totalPapers > 0) {
+        const years = [...new Set(uniqueArticles
+          .map(article => article.publication_year)
+          .filter(year => year && year !== 'No year' && year !== 'N/A')
+        )];
+        
+        if (years.length > 0) {
+          avgPapersPerYear = Math.round((totalPapers / years.length) * 10) / 10;
+        } else {
+          avgPapersPerYear = Math.round((totalPapers / 5) * 10) / 10;
+        }
+      }
 
       return {
         id: professor.professor_id,
@@ -208,7 +259,7 @@ router.get('/:id', async (req, res) => {
     // Get publication data for this professor
     const { data: articles, error: artError } = await supabase
       .from('research_articles')
-      .select('professor_id, publication_year')
+      .select('professor_id, publication_year, title')
       .eq('professor_id', req.params.id)
       .order('publication_year', { ascending: false });
 
@@ -219,17 +270,37 @@ router.get('/:id', async (req, res) => {
     // Calculate metrics
     const currentYear = new Date().getFullYear();
     const lastYear = currentYear - 1;
-    const totalPapers = articles.length;
     
-    const publishedThisYear = articles.some(article => 
-      article.publication_year === currentYear.toString()
-    ) ? 'Yes' : 'No';
+    // Deduplicate articles based on title to get accurate counts
+    const uniqueArticles = articles.filter((article, index, self) => 
+      index === self.findIndex(a => a.title === article.title)
+    );
     
-    const publishedLastYear = articles.some(article => 
-      article.publication_year === lastYear.toString()
-    ) ? 'Yes' : 'No';
+    const totalPapers = uniqueArticles.length;
     
-    const avgPapersPerYear = totalPapers > 0 ? Math.round(totalPapers / 5) : 0;
+    const articlesThisYear = uniqueArticles.filter(article => 
+      article.publication_year && article.publication_year.toString() === currentYear.toString()
+    );
+    const articlesLastYear = uniqueArticles.filter(article => 
+      article.publication_year && article.publication_year.toString() === lastYear.toString()
+    );
+    
+    const publishedThisYear = articlesThisYear.length > 0 ? 'Yes' : 'No';
+    const publishedLastYear = articlesLastYear.length > 0 ? 'Yes' : 'No';
+    
+    let avgPapersPerYear = 0;
+    if (totalPapers > 0) {
+      const years = [...new Set(uniqueArticles
+        .map(article => article.publication_year)
+        .filter(year => year && year !== 'No year' && year !== 'N/A')
+      )];
+      
+      if (years.length > 0) {
+        avgPapersPerYear = Math.round((totalPapers / years.length) * 10) / 10;
+      } else {
+        avgPapersPerYear = Math.round((totalPapers / 5) * 10) / 10;
+      }
+    }
 
     const professorWithMetrics = {
       id: professor.professor_id,
@@ -289,7 +360,7 @@ router.get('/search/:query', async (req, res) => {
     const professorIds = professors.map(p => p.professor_id);
     const { data: articles, error: artError } = await supabase
       .from('research_articles')
-      .select('professor_id, publication_year')
+      .select('professor_id, publication_year, title')
       .in('professor_id', professorIds)
       .order('publication_year', { ascending: false });
 
@@ -303,17 +374,37 @@ router.get('/search/:query', async (req, res) => {
     
     const professorsWithMetrics = professors.map(professor => {
       const professorArticles = articles.filter(article => article.professor_id === professor.professor_id);
-      const totalPapers = professorArticles.length;
       
-      const publishedThisYear = professorArticles.some(article => 
-        article.publication_year === currentYear.toString()
-      ) ? 'Yes' : 'No';
+      // Deduplicate articles based on title to get accurate counts
+      const uniqueArticles = professorArticles.filter((article, index, self) => 
+        index === self.findIndex(a => a.title === article.title)
+      );
       
-      const publishedLastYear = professorArticles.some(article => 
-        article.publication_year === lastYear.toString()
-      ) ? 'Yes' : 'No';
+      const totalPapers = uniqueArticles.length;
       
-      const avgPapersPerYear = totalPapers > 0 ? Math.round(totalPapers / 5) : 0;
+      const articlesThisYear = uniqueArticles.filter(article => 
+        article.publication_year && article.publication_year.toString() === currentYear.toString()
+      );
+      const articlesLastYear = uniqueArticles.filter(article => 
+        article.publication_year && article.publication_year.toString() === lastYear.toString()
+      );
+      
+      const publishedThisYear = articlesThisYear.length > 0 ? 'Yes' : 'No';
+      const publishedLastYear = articlesLastYear.length > 0 ? 'Yes' : 'No';
+      
+      let avgPapersPerYear = 0;
+      if (totalPapers > 0) {
+        const years = [...new Set(uniqueArticles
+          .map(article => article.publication_year)
+          .filter(year => year && year !== 'No year' && year !== 'N/A')
+        )];
+        
+        if (years.length > 0) {
+          avgPapersPerYear = Math.round((totalPapers / years.length) * 10) / 10;
+        } else {
+          avgPapersPerYear = Math.round((totalPapers / 5) * 10) / 10;
+        }
+      }
 
       return {
         id: professor.professor_id,

@@ -30,7 +30,12 @@ router.get('/', async (req, res) => {
       return res.status(500).json({ error: error.message });
     }
 
-    res.json(data);
+    // Deduplicate articles based on title to get accurate counts
+    const uniqueArticles = data.filter((article, index, self) => 
+      index === self.findIndex(a => a.title === article.title)
+    );
+
+    res.json(uniqueArticles);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch articles' });
   }
@@ -65,7 +70,15 @@ router.get('/professor/:professorId', async (req, res) => {
       return res.status(500).json({ error: error.message });
     }
 
-    res.json(data);
+    // Filter out articles without proper professor associations (same as main endpoint)
+    const validArticles = data.filter(article => article.professors && article.professors.name);
+
+    // Deduplicate articles based on title to get accurate counts
+    const uniqueArticles = validArticles.filter((article, index, self) => 
+      index === self.findIndex(a => a.title === article.title)
+    );
+
+    res.json(uniqueArticles);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch articles' });
   }
