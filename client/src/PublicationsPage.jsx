@@ -52,13 +52,16 @@ const PublicationsPage = () => {
     try {
       setLoading(true);
       
-      // Fetch professor details
-      const professorResponse = await fetch(`http://localhost:5001/api/professors/${professorId}`);
-      const professorData = await professorResponse.json();
+      // Fetch professor details and publications concurrently
+      const [professorResponse, publicationsResponse] = await Promise.all([
+        fetch(`http://localhost:5001/api/professors/${professorId}`),
+        fetch(`http://localhost:5001/api/articles/professor/${professorId}`)
+      ]);
       
-      // Fetch professor's publications
-      const publicationsResponse = await fetch(`http://localhost:5001/api/articles/professor/${professorId}`);
-      const publicationsData = await publicationsResponse.json();
+      const [professorData, publicationsData] = await Promise.all([
+        professorResponse.json(),
+        publicationsResponse.json()
+      ]);
       
       setProfessor(professorData);
       setPublications(publicationsData);
@@ -78,7 +81,10 @@ const PublicationsPage = () => {
   if (loading) {
     return (
       <div className="publications-page">
-        <div className="loading">Loading professor publications...</div>
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <div className="loading-text">Loading professor publications...</div>
+        </div>
       </div>
     );
   }

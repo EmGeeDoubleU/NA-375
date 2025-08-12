@@ -76,17 +76,18 @@ const FacultyDirectory = () => {
     try {
       setLoading(true);
       
-      // Fetch professors with full hierarchy data
-      const professorsResponse = await fetch('http://localhost:5001/api/professors');
-      const professorsData = await professorsResponse.json();
+      // Fetch all data concurrently instead of sequentially
+      const [professorsResponse, universitiesResponse, departmentsResponse] = await Promise.all([
+        fetch('http://localhost:5001/api/professors'),
+        fetch('http://localhost:5001/api/universities'),
+        fetch('http://localhost:5001/api/departments')
+      ]);
       
-      // Fetch universities
-      const universitiesResponse = await fetch('http://localhost:5001/api/universities');
-      const universitiesData = await universitiesResponse.json();
-      
-      // Fetch departments
-      const departmentsResponse = await fetch('http://localhost:5001/api/departments');
-      const departmentsData = await departmentsResponse.json();
+      const [professorsData, universitiesData, departmentsData] = await Promise.all([
+        professorsResponse.json(),
+        universitiesResponse.json(),
+        departmentsResponse.json()
+      ]);
       
       setProfessors(professorsData);
       setUniversities(universitiesData);
@@ -199,7 +200,10 @@ const FacultyDirectory = () => {
   if (loading) {
     return (
       <div className="faculty-directory">
-        <div className="loading">Loading faculty directory...</div>
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <div className="loading-text">Loading faculty directory...</div>
+        </div>
       </div>
     );
   }

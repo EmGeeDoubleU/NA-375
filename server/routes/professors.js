@@ -5,8 +5,8 @@ const router = express.Router();
 // Get all professors with publication metrics
 router.get('/', async (req, res) => {
   try {
-    // First get professors with hierarchy
-    const { data: professors, error: profError } = await supabase
+    // Single optimized query to get all professors with article counts
+    const { data: professorsWithArticles, error: profError } = await supabase
       .from('professors')
       .select(`
         professor_id,
@@ -24,6 +24,9 @@ router.get('/', async (req, res) => {
               name
             )
           )
+        ),
+        research_articles (
+          publication_year
         )
       `)
       .order('name');
@@ -32,37 +35,12 @@ router.get('/', async (req, res) => {
       return res.status(500).json({ error: profError.message });
     }
 
-    // Calculate metrics for each professor by doing direct queries
+    // Calculate metrics efficiently in memory
     const currentYear = new Date().getFullYear();
     const lastYear = currentYear - 1;
     
-    const professorsWithMetrics = await Promise.all(professors.map(async (professor) => {
-      // Direct query to count articles for this professor
-      const { data: articles, error: artError } = await supabase
-        .from('research_articles')
-        .select('publication_year')
-        .eq('professor_id', professor.professor_id);
-      
-      if (artError) {
-        console.error(`Error fetching articles for professor ${professor.professor_id}:`, artError);
-        return {
-          id: professor.professor_id,
-          name: professor.name,
-          position: professor.position,
-          email: professor.email,
-          phone: professor.phone,
-          headshot: professor.headshot,
-          google_scholar_link: professor.google_scholar_link,
-          department_name: professor.departments?.name || 'Unknown',
-          college_name: professor.departments?.colleges?.name || 'Unknown',
-          university_name: professor.departments?.colleges?.universities?.name || 'Unknown',
-          published_this_year: 'No',
-          published_last_year: 'No',
-          total_papers: 0,
-          avg_papers_per_year: 0
-        };
-      }
-      
+    const professorsWithMetrics = professorsWithArticles.map(professor => {
+      const articles = professor.research_articles || [];
       const totalPapers = articles.length;
       
       // Filter articles by year
@@ -108,12 +86,12 @@ router.get('/', async (req, res) => {
         total_papers: totalPapers,
         avg_papers_per_year: avgPapersPerYear
       };
-    }));
+    });
 
     res.json(professorsWithMetrics);
   } catch (error) {
     console.error('Error fetching professors:', error);
-    res.status(500).json({ error: 'Failed to fetch professors' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
