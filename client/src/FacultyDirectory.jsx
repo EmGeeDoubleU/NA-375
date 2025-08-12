@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './FacultyDirectory.css';
 
 const FacultyDirectory = () => {
@@ -7,6 +8,7 @@ const FacultyDirectory = () => {
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
   
   // Filter states
   const [selectedUniversities, setSelectedUniversities] = useState([]);
@@ -74,6 +76,10 @@ const FacultyDirectory = () => {
         ? prev.filter(f => f !== field)
         : [...prev, field]
     );
+  };
+
+  const handleViewPublications = (professorId) => {
+    navigate(`/professor/${professorId}`);
   };
 
   const getMetricColor = (value, type) => {
@@ -237,7 +243,12 @@ const FacultyDirectory = () => {
               </div>
 
               <div className="professor-actions">
-                <button className="action-button">View Publications</button>
+                <button 
+                  className="action-button"
+                  onClick={() => handleViewPublications(professor.id)}
+                >
+                  View Publications
+                </button>
                 <button className="action-button">Contact</button>
               </div>
             </div>
