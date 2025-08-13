@@ -467,7 +467,7 @@ const FacultyDirectory = () => {
           <div className="professors-grid">
             {sortedProfessors.length > 0 ? (
               sortedProfessors.map(professor => (
-                <div key={professor.id} className={`professor-card ${isTopResearcher(professor) ? 'top-researcher' : ''}`}>
+                <div key={professor.id} className={`professor-card ${isTopResearcher(professor) ? 'top-researcher' : ''}`} onClick={() => navigate(`/professor/${professor.id}`)}>
                   {isTopResearcher(professor) && (
                     <div className="top-researcher-badge">
                       🔥 Top Researcher
@@ -538,16 +538,6 @@ const FacultyDirectory = () => {
                           {professor.avg_papers_per_year}
                         </span>
                       </div>
-                    </div>
-
-                    <div className="professor-actions">
-                      <button 
-                        className="action-button"
-                        onClick={() => navigate(`/professor/${professor.id}`)}
-                      >
-                        View Publications
-                      </button>
-                      <button className="action-button">Contact</button>
                     </div>
                   </div>
                 </div>
