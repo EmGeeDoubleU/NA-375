@@ -93,7 +93,7 @@ const SearchBar = ({ professors }) => {
           </svg>
           <input
             type="text"
-            placeholder="Type / to search professors..."
+            placeholder="Search for researchers by name or university..."
             value={searchQuery}
             onChange={handleSearchInputChange}
             onKeyDown={handleSearchKeyDown}
