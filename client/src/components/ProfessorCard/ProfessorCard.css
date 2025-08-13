@@ -1,0 +1,168 @@
+.professor-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  border: 2px solid transparent;
+}
+
+.professor-card.top-researcher {
+  border: 3px solid #f59e0b;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(245, 158, 11, 0.2);
+}
+
+.top-researcher-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.professor-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: #3b82f6;
+}
+
+.university-banner {
+  height: 8px;
+  width: 100%;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  display: flex;
+  align-items: center;
+}
+
+.professor-content {
+  padding: 20px;
+}
+
+.professor-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.professor-info {
+  flex: 1;
+}
+
+.professor-name {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: #1f2937;
+}
+
+.professor-position,
+.professor-department {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 4px 0;
+}
+
+/* Metrics */
+.professor-metrics {
+  margin-bottom: 20px;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.metric span:first-child {
+  color: #374151;
+  font-weight: 500;
+}
+
+.metric-indicator {
+  padding: 4px 12px;
+  border-radius: 15px;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .professor-card {
+    border-radius: 8px;
+  }
+  
+  .professor-content {
+    padding: 16px;
+  }
+  
+  .professor-header {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .professor-name {
+    font-size: 18px;
+  }
+  
+  .professor-position,
+  .professor-department {
+    font-size: 13px;
+  }
+  
+  .metric {
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+  
+  .metric-indicator {
+    padding: 3px 10px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .professor-content {
+    padding: 12px;
+  }
+  
+  .professor-header {
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  
+  .professor-name {
+    font-size: 16px;
+  }
+  
+  .professor-position,
+  .professor-department {
+    font-size: 12px;
+  }
+  
+  .metric {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+  
+  .metric-indicator {
+    padding: 2px 8px;
+    font-size: 10px;
+  }
+} 

@@ -1,0 +1,126 @@
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-right: 1px solid #e2e8f0;
+  padding: 16px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  border-radius: 12px;
+  margin-right: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-content {
+  padding: 0;
+}
+
+.sidebar-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e2e8f0;
+  text-align: center;
+}
+
+.filter-group {
+  margin-bottom: 16px;
+}
+
+.filter-group-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.filter-button {
+  padding: 8px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 20px;
+  background-color: white;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: auto;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.filter-button:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+  transform: translateY(-1px);
+}
+
+.filter-button.selected {
+  background-color: #1e3a8a;
+  border-color: #1e3a8a;
+  color: white;
+  box-shadow: 0 2px 4px rgba(30, 58, 138, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+    margin-right: 16px;
+    padding: 12px;
+  }
+  
+  .sidebar-title {
+    font-size: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .filter-group-title {
+    font-size: 12px;
+  }
+  
+  .filter-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 180px;
+    margin-right: 12px;
+    padding: 10px;
+  }
+  
+  .sidebar-title {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  
+  .filter-group {
+    margin-bottom: 12px;
+  }
+  
+  .filter-group-title {
+    font-size: 11px;
+  }
+  
+  .filter-button {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+} 
