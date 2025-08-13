@@ -3,11 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import ProfilePhoto from '../ProfilePhoto/ProfilePhoto';
 import './ProfessorCard.css';
 
-const ProfessorCard = ({ professor, isTopResearcher, universityColors }) => {
+const ProfessorCard = ({ professor, isTopResearcher, universityColors, onViewPublications }) => {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
-    navigate(`/professor/${professor.id}`);
+    if (onViewPublications) {
+      onViewPublications(professor.id);
+    } else {
+      navigate(`/professor/${professor.id}`);
+    }
   };
 
   return (

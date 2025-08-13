@@ -1,128 +1,74 @@
-/* Search Section */
+/* SearchBar specific styles - main styles are in FacultyDirectory.css */
+
+/* Override any conflicting styles from the main CSS */
 .search-section {
-  margin-bottom: 30px;
-  text-align: center;
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 .search-container {
-  max-width: 600px;
-  margin: 0 auto;
-  position: relative;
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 .search-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 .search-input {
-  width: 100%;
-  padding: 12px 40px 12px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 16px;
-  outline: none;
-  transition: border-color 0.2s ease;
-  background: white;
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 .search-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 .search-clear {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  font-size: 18px;
-  color: #9ca3af;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: color 0.2s ease;
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 .search-clear:hover {
-  color: #6b7280;
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 .search-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  max-height: 400px;
-  overflow-y: auto;
-  z-index: 1000;
-  margin-top: 4px;
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 .search-result {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  border-bottom: 1px solid #f3f4f6;
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 .search-result:last-child {
-  border-bottom: none;
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 .search-result:hover,
 .search-result.selected {
-  background-color: #f8fafc;
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 .search-result-avatar {
-  margin-right: 12px;
-  flex-shrink: 0;
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 .search-result-avatar .professor-avatar,
 .search-result-avatar .professor-avatar-initials {
-  width: 40px;
-  height: 40px;
-  font-size: 14px;
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 .search-result-info {
-  flex: 1;
-  min-width: 0;
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 .search-result-name {
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 .search-result-details {
-  font-size: 14px;
-  color: #6b7280;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 .search-no-results {
-  padding: 16px;
-  text-align: center;
-  color: #6b7280;
-  font-style: italic;
+  /* These styles are now handled in FacultyDirectory.css */
 }
 
 /* Responsive Design */

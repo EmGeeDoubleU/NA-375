@@ -1,33 +1,32 @@
-/* Faculty Directory Layout */
-.faculty-directory {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.faculty-layout {
-  display: flex;
-  min-height: 100vh;
-}
+/* Faculty Directory specific styles - header and layout moved to Layout.css */
 
 /* Sidebar */
 .sidebar {
-  width: 240px;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background-color: white;
   border-right: 1px solid #e2e8f0;
-  padding: 16px;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-  border-radius: 12px;
-  margin-right: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, width 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.sidebar-open {
+  width: 260px;
+  transform: translateX(0);
+}
+
+.sidebar-closed {
+  width: 0;
+  transform: translateX(-100%);
 }
 
 .sidebar-content {
-  padding: 0;
+  padding: 16px;
+  width: 260px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .sidebar-title {
@@ -36,7 +35,7 @@
   color: #1e293b;
   margin-bottom: 20px;
   padding-bottom: 12px;
-  border-bottom: 2px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
   text-align: center;
 }
 
@@ -63,8 +62,8 @@
 
 .filter-button {
   padding: 8px 16px;
-  border: 2px solid #d1d5db;
-  border-radius: 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
   background-color: white;
   color: #374151;
   font-size: 13px;
@@ -79,31 +78,22 @@
 .filter-button:hover {
   background-color: #f9fafb;
   border-color: #9ca3af;
-  transform: translateY(-1px);
 }
 
 .filter-button.selected {
   background-color: #1e3a8a;
   border-color: #1e3a8a;
   color: white;
-  box-shadow: 0 2px 4px rgba(30, 58, 138, 0.2);
-}
-
-/* Main Content */
-.main-content {
-  flex: 1;
-  max-width: calc(100vw - 280px);
 }
 
 /* Search Section */
 .search-section {
-  margin-bottom: 30px;
+  margin: 0;
   text-align: center;
 }
 
 .search-container {
-  max-width: 600px;
-  margin: 0 auto;
+  width: 100%;
   position: relative;
 }
 
@@ -113,15 +103,27 @@
   align-items: center;
 }
 
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: #9ca3af;
+  z-index: 1;
+}
+
 .search-input {
   width: 100%;
-  padding: 12px 40px 12px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 16px;
+  padding: 8px 40px 8px 40px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
   outline: none;
   transition: border-color 0.2s ease;
-  background: white;
+  background-color: white;
+  color: #1f2937;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
 }
 
 .search-input:focus {
@@ -153,9 +155,9 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   max-height: 400px;
   overflow-y: auto;
@@ -237,8 +239,8 @@
 
 .sort-button {
   padding: 8px 16px;
-  border: 2px solid #d1d5db;
-  border-radius: 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
   background-color: white;
   color: #374151;
   font-size: 13px;
@@ -281,19 +283,18 @@
 }
 
 .professor-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
   position: relative;
-  border: 2px solid transparent;
 }
 
 .professor-card.top-researcher {
-  border: 3px solid #f59e0b;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(245, 158, 11, 0.2);
+  border: 2px solid #f59e0b;
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2);
 }
 
 .top-researcher-badge {
@@ -430,7 +431,7 @@
   flex: 1;
   padding: 10px 16px;
   border: 1px solid #d1d5db;
-  border-radius: 20px;
+  border-radius: 6px;
   background-color: #f9fafb;
   color: #374151;
   font-size: 14px;
@@ -527,12 +528,9 @@
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-  .faculty-layout {
-    flex-direction: column;
-  }
-  
   .sidebar {
-    width: 100%;
+    width: 100% !important;
+    transform: none !important;
     height: auto;
     position: static;
     border-right: none;
@@ -541,8 +539,8 @@
     margin-bottom: 20px;
   }
   
-  .main-content {
-    max-width: 100%;
+  .sidebar-content {
+    width: 100%;
   }
   
   .filter-buttons {
@@ -558,18 +556,9 @@
 }
 
 @media (max-width: 768px) {
-  .faculty-directory {
-    padding: 16px;
-  }
-  
   .professors-grid {
     grid-template-columns: 1fr;
     gap: 16px;
-  }
-  
-  .university-filters,
-  .field-filters {
-    gap: 8px;
   }
   
   .filter-button {
@@ -607,10 +596,6 @@
   
   .professor-actions {
     flex-direction: column;
-  }
-  
-  .search-container {
-    max-width: 100%;
   }
   
   .search-input {

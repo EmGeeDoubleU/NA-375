@@ -7,13 +7,12 @@ const FilterSidebar = ({
   toggleUniversity, 
   availableFields, 
   selectedFields, 
-  toggleField 
+  toggleField,
+  isOpen = true
 }) => {
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
       <div className="sidebar-content">
-        <h2 className="sidebar-title">Browse & Filter</h2>
-        
         {/* University Filters */}
         <div className="filter-group">
           <h3 className="filter-group-title">Universities</h3>

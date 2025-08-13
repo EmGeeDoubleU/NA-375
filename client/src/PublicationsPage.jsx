@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ProfilePhoto from './components/ProfilePhoto/ProfilePhoto';
+import Layout from './components/Layout/Layout';
 import { getInitials, isTopResearcher } from './utils/facultyUtils';
 import './PublicationsPage.css';
 
@@ -48,26 +49,26 @@ const PublicationsPage = () => {
 
   if (loading) {
     return (
-      <div className="publications-page">
+      <Layout>
         <div className="loading-container">
           <div className="loading-spinner"></div>
           <div className="loading-text">Loading professor publications...</div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   if (error || !professor) {
     return (
-      <div className="publications-page">
+      <Layout>
         <div className="error">Error: {error || 'Professor not found'}</div>
         <button className="back-button" onClick={handleBackClick}>Back to Directory</button>
-      </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="publications-page">
+    <Layout>
       {/* Header with back button */}
       <div className="page-header">
         <button className="back-button" onClick={handleBackClick}>
@@ -193,7 +194,7 @@ const PublicationsPage = () => {
           </div>
         )}
       </div>
-    </div>
+    </Layout>
   );
 };
 

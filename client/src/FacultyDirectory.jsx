@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProfilePhoto from './components/ProfilePhoto/ProfilePhoto';
-import SearchBar from './components/SearchBar/SearchBar';
-import FilterSidebar from './components/FilterSidebar/FilterSidebar';
+import Layout from './components/Layout/Layout';
 import ProfessorCard from './components/ProfessorCard/ProfessorCard';
 import SortSection from './components/SortSection/SortSection';
 import { 
@@ -104,82 +103,73 @@ const FacultyDirectory = () => {
 
   if (loading) {
     return (
-      <div className="faculty-directory">
+      <Layout>
         <div className="loading-container">
           <div className="loading-spinner"></div>
           <div className="loading-text">Loading faculty directory...</div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   if (error) {
     return (
-      <div className="faculty-directory">
+      <Layout>
         <div className="error">Error: {error}</div>
-      </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="faculty-directory">
-      <div className="faculty-layout">
-        {/* Sidebar */}
-        <FilterSidebar 
-          universities={universities}
-          selectedUniversities={selectedUniversities}
-          toggleUniversity={toggleUniversity}
-          availableFields={availableFields}
-          selectedFields={selectedFields}
-          toggleField={toggleField}
-        />
+    <Layout 
+      professors={professors}
+      universities={universities}
+      selectedUniversities={selectedUniversities}
+      toggleUniversity={toggleUniversity}
+      availableFields={availableFields}
+      selectedFields={selectedFields}
+      toggleField={toggleField}
+    >
+      {/* Sort Section */}
+      <SortSection 
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={handleSort}
+      />
 
-        {/* Main Content */}
-        <div className="main-content">
-          {/* Search Section */}
-          <SearchBar professors={professors} />
-
-          {/* Sort Section */}
-          <SortSection 
-            sortBy={sortBy}
-            sortOrder={sortOrder}
-            onSort={handleSort}
-          />
-
-          {/* Results Count */}
-          <div className="results-count">
-            Showing {sortedProfessors.length} professor{sortedProfessors.length !== 1 ? 's' : ''}
-          </div>
-
-          {/* Professors Grid */}
-          <div className="professors-grid">
-            {sortedProfessors.length > 0 ? (
-              sortedProfessors.map(professor => (
-                <ProfessorCard
-                  key={professor.id}
-                  professor={professor}
-                  isTopResearcher={isTopResearcher}
-                  universityColors={universityColors}
-                />
-              ))
-            ) : (
-              <div className="no-results">
-                <p>No professors found matching your filters.</p>
-                <button 
-                  className="clear-filters-button"
-                  onClick={() => {
-                    setSelectedUniversities([]);
-                    setSelectedFields([]);
-                  }}
-                >
-                  Clear All Filters
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+      {/* Results Count */}
+      <div className="results-count">
+        Showing {sortedProfessors.length} professor{sortedProfessors.length !== 1 ? 's' : ''}
       </div>
-    </div>
+
+      {/* Professors Grid */}
+      <div className="professors-grid">
+        {sortedProfessors.length > 0 ? (
+          sortedProfessors.map(professor => (
+            <ProfessorCard
+              key={professor.id}
+              professor={professor}
+              isTopResearcher={isTopResearcher}
+              universityColors={universityColors}
+              onViewPublications={handleViewPublications}
+            />
+          ))
+        ) : (
+          <div className="no-results">
+            <p>No professors found matching your filters.</p>
+            <button 
+              className="clear-filters-button"
+              onClick={() => {
+                setSelectedUniversities([]);
+                setSelectedFields([]);
+              }}
+            >
+              Clear All Filters
+            </button>
+          </div>
+        )}
+      </div>
+    </Layout>
   );
 };
 
