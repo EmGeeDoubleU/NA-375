@@ -44,6 +44,13 @@ const PublicationsPage = () => {
     );
   };
 
+  // Determine if a professor is a top researcher
+  const isTopResearcher = (professor) => {
+    return professor.total_papers >= 300 && 
+           (professor.published_this_year === 'Yes' || professor.published_last_year === 'Yes') &&
+           professor.avg_papers_per_year >= 6;
+  };
+
   useEffect(() => {
     fetchProfessorData();
   }, [professorId]);
@@ -109,7 +116,12 @@ const PublicationsPage = () => {
 
       {/* Professor Profile Section */}
       <div className="professor-profile">
-        <div className="profile-header">
+        <div className={`profile-header ${isTopResearcher(professor) ? 'top-researcher' : ''}`}>
+          {isTopResearcher(professor) && (
+            <div className="top-researcher-badge">
+              🔥 Top Researcher
+            </div>
+          )}
           <ProfilePhoto professor={professor} />
           <div className="profile-info">
             <h1 className="profile-name">{professor.name}</h1>
