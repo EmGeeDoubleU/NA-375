@@ -12,10 +12,23 @@ const PublicationsPage = () => {
   const [publications, setPublications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
+    // Scroll to top when page loads
+    window.scrollTo(0, 0);
     fetchProfessorData();
   }, [professorId]);
+
+  // Add scroll listener for back to top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const fetchProfessorData = async () => {
     try {
@@ -47,6 +60,13 @@ const PublicationsPage = () => {
     navigate('/');
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -69,6 +89,13 @@ const PublicationsPage = () => {
 
   return (
     <Layout>
+      {/* Back to top button */}
+      {showBackToTop && (
+        <button className="back-to-top-button" onClick={scrollToTop}>
+          ↑
+        </button>
+      )}
+
       {/* Header with back button */}
       <div className="page-header">
         <button className="back-button" onClick={handleBackClick}>

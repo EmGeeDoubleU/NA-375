@@ -21,6 +21,7 @@ const FacultyDirectory = () => {
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const navigate = useNavigate();
   
   // Filter states
@@ -32,7 +33,19 @@ const FacultyDirectory = () => {
   const [sortOrder, setSortOrder] = useState('asc');
   
   useEffect(() => {
+    // Scroll to top when page loads
+    window.scrollTo(0, 0);
     fetchData();
+  }, []);
+
+  // Add scroll listener for back to top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const fetchData = async () => {
@@ -94,6 +107,13 @@ const FacultyDirectory = () => {
     }
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   // Sort professors with top researchers first, then by the selected criteria
   const sortedProfessors = useMemo(() => {
     return sortProfessors(professors, selectedUniversities, selectedFields, sortBy, sortOrder);
@@ -130,6 +150,13 @@ const FacultyDirectory = () => {
       selectedFields={selectedFields}
       toggleField={toggleField}
     >
+      {/* Back to top button */}
+      {showBackToTop && (
+        <button className="back-to-top-button" onClick={scrollToTop}>
+          ↑
+        </button>
+      )}
+
       {/* Sort Section */}
       <SortSection 
         sortBy={sortBy}
