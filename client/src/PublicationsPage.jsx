@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import ProfilePhoto from './components/ProfilePhoto/ProfilePhoto';
 import './PublicationsPage.css';
 
 const PublicationsPage = () => {
@@ -18,30 +19,6 @@ const PublicationsPage = () => {
       return (names[0][0] + names[names.length - 1][0]).toUpperCase();
     }
     return name[0].toUpperCase();
-  };
-
-  // Profile Photo Component with error handling
-  const ProfilePhoto = ({ professor }) => {
-    const [imageError, setImageError] = useState(false);
-    
-    // If no headshot or image failed to load, show initials
-    if (!professor.headshot || imageError) {
-      return (
-        <div className="profile-avatar-initials">
-          {getInitials(professor.name)}
-        </div>
-      );
-    }
-    
-    // Try to load the image, fallback to initials on error
-    return (
-      <img 
-        src={professor.headshot} 
-        alt={professor.name}
-        className="profile-avatar"
-        onError={() => setImageError(true)}
-      />
-    );
   };
 
   // Determine if a professor is a top researcher
@@ -122,7 +99,7 @@ const PublicationsPage = () => {
               🔥 Top Researcher
             </div>
           )}
-          <ProfilePhoto professor={professor} />
+          <ProfilePhoto professor={professor} className="profile-avatar" />
           <div className="profile-info">
             <h1 className="profile-name">{professor.name}</h1>
             <p className="profile-position">{professor.position}</p>
