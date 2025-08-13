@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
+import { getInitials } from '../../utils/facultyUtils';
 import './ProfilePhoto.css';
-
-// Function to generate initials from name
-const getInitials = (name) => {
-  if (!name) return '?';
-  const names = name.split(' ');
-  if (names.length >= 2) {
-    return (names[0][0] + names[names.length - 1][0]).toUpperCase();
-  }
-  return name[0].toUpperCase();
-};
 
 // Profile Photo Component with error handling
 const ProfilePhoto = ({ professor, className = "professor-avatar" }) => {

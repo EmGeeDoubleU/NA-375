@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ProfilePhoto from './components/ProfilePhoto/ProfilePhoto';
+import { getInitials, isTopResearcher } from './utils/facultyUtils';
 import './PublicationsPage.css';
 
 const PublicationsPage = () => {
@@ -10,23 +11,6 @@ const PublicationsPage = () => {
   const [publications, setPublications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Function to generate initials from name
-  const getInitials = (name) => {
-    if (!name) return '?';
-    const names = name.split(' ');
-    if (names.length >= 2) {
-      return (names[0][0] + names[names.length - 1][0]).toUpperCase();
-    }
-    return name[0].toUpperCase();
-  };
-
-  // Determine if a professor is a top researcher
-  const isTopResearcher = (professor) => {
-    return professor.total_papers >= 300 && 
-           (professor.published_this_year === 'Yes' || professor.published_last_year === 'Yes') &&
-           professor.avg_papers_per_year >= 6;
-  };
 
   useEffect(() => {
     fetchProfessorData();

@@ -1,0 +1,69 @@
+/* Sort Section */
+.sort-section {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.sort-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sort-button {
+  padding: 8px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 20px;
+  background-color: white;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.sort-button:hover {
+  border-color: #9ca3af;
+  background-color: #f9fafb;
+}
+
+.sort-button.active {
+  border-color: #1e3a8a;
+  background-color: #1e3a8a;
+  color: white;
+}
+
+.sort-button.active:hover {
+  background-color: #1e40af;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sort-section {
+    margin-bottom: 20px;
+  }
+  
+  .sort-buttons {
+    gap: 8px;
+  }
+  
+  .sort-button {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sort-buttons {
+    gap: 6px;
+  }
+  
+  .sort-button {
+    padding: 5px 10px;
+    font-size: 11px;
+    min-width: 80px;
+  }
+} 
