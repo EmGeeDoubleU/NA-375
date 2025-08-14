@@ -1,9 +1,8 @@
-// Available fields for filtering
-export const availableFields = [
-  "Computer Science", "Biology", "Chemistry", "Physics", 
-  "Mathematics", "Engineering", "Medicine", "Psychology", 
-  "Economics", "Political Science"
-];
+// Available fields for filtering - now fetched dynamically from database
+export const availableFields = []; // This will be populated from the database
+
+// Cached department to field mapping
+export const departmentToFieldMap = new Map();
 
 // University colors for banners
 export const universityColors = {
@@ -12,6 +11,60 @@ export const universityColors = {
   'Temple University': '#f59e0b',
   'Thomas Jefferson University': '#7c3aed',
   'Other': '#6b7280'
+};
+
+// Function to fetch available fields and department mappings from the database
+export const fetchAvailableFields = async () => {
+  try {
+    // Fetch fields of interest
+    const fieldsResponse = await fetch('http://localhost:5001/api/fields');
+    const fields = await fieldsResponse.json();
+    
+    // Extract field names and sort them
+    const fieldNames = fields.map(field => field.name).sort();
+    
+    // Update the availableFields array
+    availableFields.length = 0; // Clear the array
+    availableFields.push(...fieldNames);
+    
+    // Fetch departments and their field mappings
+    const deptResponse = await fetch('http://localhost:5001/api/departments');
+    const departments = await deptResponse.json();
+    
+    // Clear the mapping
+    departmentToFieldMap.clear();
+    
+    // For each department, get its field of interest
+    for (const dept of departments) {
+      try {
+        const fieldResponse = await fetch(`http://localhost:5001/api/fields/department/${dept.department_id}`);
+        const fieldData = await fieldResponse.json();
+        departmentToFieldMap.set(dept.name, fieldData.name);
+      } catch (error) {
+        // If no mapping found, use department name as fallback
+        departmentToFieldMap.set(dept.name, dept.name);
+      }
+    }
+    
+    return fieldNames;
+  } catch (error) {
+    console.error('Error fetching available fields:', error);
+    // Fallback to basic fields if API fails
+    const fallbackFields = [
+      "Computer Science", "Biology", "Chemistry", "Physics", 
+      "Mathematics", "Psychology", "Political Science", "Sociology",
+      "Communication", "Criminal Justice", "English & Philosophy", 
+      "Global Studies", "History", "Public Policy", "Environmental Science"
+    ];
+    availableFields.length = 0;
+    availableFields.push(...fallbackFields);
+    return fallbackFields;
+  }
+};
+
+// Function to get field of interest from department name (synchronous, uses cached mapping)
+export const getFieldFromDepartment = (departmentName) => {
+  return departmentToFieldMap.get(departmentName) || departmentName;
 };
 
 // Function to generate initials from name
@@ -56,8 +109,9 @@ export const sortProfessors = (professors, selectedUniversities, selectedFields,
   const filtered = professors.filter(professor => {
     const universityMatch = selectedUniversities.length === 0 || 
                            selectedUniversities.includes(professor.university_name);
+    const professorField = getFieldFromDepartment(professor.department_name);
     const fieldMatch = selectedFields.length === 0 || 
-                      selectedFields.includes(professor.department_name);
+                      selectedFields.includes(professorField);
     return universityMatch && fieldMatch;
   });
 
@@ -116,8 +170,9 @@ export const filterProfessors = (professors, selectedUniversities, selectedField
   return professors.filter(professor => {
     const universityMatch = selectedUniversities.length === 0 || 
       selectedUniversities.includes(professor.university_name);
+    const professorField = getFieldFromDepartment(professor.department_name);
     const fieldMatch = selectedFields.length === 0 || 
-      selectedFields.includes(professor.department_name);
+      selectedFields.includes(professorField);
     return universityMatch && fieldMatch;
   });
 }; 

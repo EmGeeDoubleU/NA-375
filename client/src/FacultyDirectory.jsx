@@ -6,6 +6,7 @@ import ProfessorCard from './components/ProfessorCard/ProfessorCard';
 import SortSection from './components/SortSection/SortSection';
 import { 
   availableFields, 
+  fetchAvailableFields,
   universityColors, 
   getInitials, 
   isTopResearcher, 
@@ -68,6 +69,9 @@ const FacultyDirectory = () => {
       setProfessors(professorsData);
       setUniversities(universitiesData);
       setDepartments(departmentsData);
+      
+      // Fetch available fields and department mappings from the database
+      await fetchAvailableFields();
       
     } catch (err) {
       setError('Failed to fetch data from server');

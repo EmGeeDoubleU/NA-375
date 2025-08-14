@@ -40,9 +40,13 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .sidebar {
-    width: 200px;
-    margin-right: 16px;
-    padding: 12px;
+    width: 240px; /* Adjusted for mobile */
+    top: 73px; /* Keep consistent with desktop */
+  }
+  
+  .sidebar-content {
+    width: 240px; /* Match sidebar width */
+    padding: 16px; /* Slightly less padding on mobile */
   }
   
   .sidebar-title {
@@ -55,16 +59,27 @@
   }
   
   .filter-button {
-    padding: 6px 12px;
+    padding: 6px 10px; /* Slightly smaller padding */
     font-size: 12px;
+    min-width: fit-content; /* Button width fits content */
+    flex-shrink: 0; /* Prevent shrinking */
+  }
+  
+  /* Update main content margin for mobile */
+  .main-content {
+    margin-left: 240px;
   }
 }
 
 @media (max-width: 480px) {
   .sidebar {
-    width: 180px;
-    margin-right: 12px;
-    padding: 10px;
+    width: 200px; /* Even smaller on very small screens */
+    top: 73px;
+  }
+  
+  .sidebar-content {
+    width: 200px;
+    padding: 12px;
   }
   
   .sidebar-title {
@@ -81,7 +96,14 @@
   }
   
   .filter-button {
-    padding: 5px 10px;
+    padding: 5px 8px; /* Even smaller padding */
     font-size: 11px;
+    min-width: fit-content; /* Button width fits content */
+    flex-shrink: 0; /* Prevent shrinking */
+  }
+  
+  /* Update main content margin for very small screens */
+  .main-content {
+    margin-left: 200px;
   }
 } 

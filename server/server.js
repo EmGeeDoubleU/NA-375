@@ -10,6 +10,7 @@ const universitiesRoutes = require('./routes/universities');
 const departmentsRoutes = require('./routes/departments');
 const professorsRoutes = require('./routes/professors');
 const articlesRoutes = require('./routes/articles');
+const fieldsRoutes = require('./routes/fields');
 
 // Middleware
 app.use(cors());
@@ -34,6 +35,7 @@ app.use('/api/universities', universitiesRoutes);
 app.use('/api/departments', departmentsRoutes);
 app.use('/api/professors', professorsRoutes);
 app.use('/api/articles', articlesRoutes);
+app.use('/api/fields', fieldsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -54,4 +56,5 @@ app.listen(PORT, () => {
   console.log(`  - Departments: http://localhost:${PORT}/api/departments`);
   console.log(`  - Professors: http://localhost:${PORT}/api/professors`);
   console.log(`  - Articles: http://localhost:${PORT}/api/articles`);
+  console.log(`  - Fields: http://localhost:${PORT}/api/fields`);
 }); 

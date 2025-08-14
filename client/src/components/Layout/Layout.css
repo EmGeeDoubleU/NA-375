@@ -74,6 +74,7 @@
   background-color: #f5f5f5;
   transition: margin-left 0.3s ease;
   padding: 20px;
+  margin-left: 280px; /* Account for fixed sidebar width */
 }
 
 .main-content.sidebar-collapsed {
@@ -92,5 +93,24 @@
     order: 3;
     flex: 1 1 100%;
     max-width: none;
+  }
+  
+  /* Handle sidebar on mobile */
+  .main-content {
+    margin-left: 240px; /* Match sidebar width from FilterSidebar.css */
+  }
+  
+  .main-content.sidebar-collapsed {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    margin-left: 200px; /* Match sidebar width from FilterSidebar.css */
+  }
+  
+  .main-content.sidebar-collapsed {
+    margin-left: 0;
   }
 } 
