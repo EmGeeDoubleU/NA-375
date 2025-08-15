@@ -2,11 +2,24 @@ const express = require('express');
 const supabase = require('../config/supabase');
 const router = express.Router();
 
-// Get all professors with publication metrics
+// Get all professors with pre-calculated publication metrics (lightning fast!)
 router.get('/', async (req, res) => {
   try {
-    // Single optimized query to get all professors with article counts
-    const { data: professorsWithArticles, error: profError } = await supabase
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+
+    // Get total count for pagination info
+    const { count: totalCount, error: countError } = await supabase
+      .from('professors')
+      .select('*', { count: 'exact', head: true });
+
+    if (countError) {
+      return res.status(500).json({ error: countError.message });
+    }
+
+    // Get professors with pre-calculated metrics
+    let query = supabase
       .from('professors')
       .select(`
         professor_id,
@@ -16,6 +29,10 @@ router.get('/', async (req, res) => {
         phone,
         headshot,
         google_scholar_link,
+        total_publications,
+        published_this_year,
+        published_last_year,
+        avg_papers_per_year,
         departments (
           name,
           colleges (
@@ -24,71 +41,52 @@ router.get('/', async (req, res) => {
               name
             )
           )
-        ),
-        research_articles (
-          publication_year
         )
       `)
       .order('name');
-
+    
+    // Apply pagination only if limit is specified and not too large
+    if (limit && limit < 1000) {
+      query = query.range(offset, offset + limit - 1);
+    }
+    
+    const { data: professors, error: profError } = await query;
+    
     if (profError) {
       return res.status(500).json({ error: profError.message });
     }
-
-    // Calculate metrics efficiently in memory
-    const currentYear = new Date().getFullYear();
-    const lastYear = currentYear - 1;
     
-    const professorsWithMetrics = professorsWithArticles.map(professor => {
-      const articles = professor.research_articles || [];
-      const totalPapers = articles.length;
-      
-      // Filter articles by year
-      const articlesThisYear = articles.filter(article => 
-        article.publication_year && article.publication_year.toString() === currentYear.toString()
-      );
-      const articlesLastYear = articles.filter(article => 
-        article.publication_year && article.publication_year.toString() === lastYear.toString()
-      );
-      
-      const publishedThisYear = articlesThisYear.length > 0 ? 'Yes' : 'No';
-      const publishedLastYear = articlesLastYear.length > 0 ? 'Yes' : 'No';
-      
-      // Calculate average papers per year
-      let avgPapersPerYear = 0;
-      if (totalPapers > 0) {
-        // Get all unique years for this professor
-        const years = [...new Set(articles
-          .map(article => article.publication_year)
-          .filter(year => year && year !== 'No year' && year !== 'N/A')
-        )];
-        
-        if (years.length > 0) {
-          avgPapersPerYear = Math.round((totalPapers / years.length) * 10) / 10;
-        } else {
-          avgPapersPerYear = Math.round((totalPapers / 5) * 10) / 10;
-        }
+    console.log(`✅ Fetched ${professors.length} professors with pre-calculated metrics`);
+    
+    // Transform the response to match the expected format
+    const professorsWithMetrics = professors.map(professor => ({
+      id: professor.professor_id,
+      name: professor.name,
+      position: professor.position,
+      email: professor.email,
+      phone: professor.phone,
+      headshot: professor.headshot,
+      google_scholar_link: professor.google_scholar_link,
+      department_name: professor.departments?.name || 'Unknown',
+      college_name: professor.departments?.colleges?.name || 'Unknown',
+      university_name: professor.departments?.colleges?.universities?.name || 'Unknown',
+      published_this_year: professor.published_this_year ? 'Yes' : 'No',
+      published_last_year: professor.published_last_year ? 'Yes' : 'No',
+      total_papers: professor.total_publications,
+      avg_papers_per_year: professor.avg_papers_per_year
+    }));
+    
+    // Return response with metadata
+    res.json({
+      professors: professorsWithMetrics,
+      pagination: {
+        page: parseInt(page),
+        limit: limit || totalCount,
+        total: totalCount,
+        totalPages: limit ? Math.ceil(totalCount / limit) : 1,
+        hasMore: limit ? page * limit < totalCount : false
       }
-
-      return {
-        id: professor.professor_id,
-        name: professor.name,
-        position: professor.position,
-        email: professor.email,
-        phone: professor.phone,
-        headshot: professor.headshot,
-        google_scholar_link: professor.google_scholar_link,
-        department_name: professor.departments?.name || 'Unknown',
-        college_name: professor.departments?.colleges?.name || 'Unknown',
-        university_name: professor.departments?.colleges?.universities?.name || 'Unknown',
-        published_this_year: publishedThisYear,
-        published_last_year: publishedLastYear,
-        total_papers: totalPapers,
-        avg_papers_per_year: avgPapersPerYear
-      };
     });
-
-    res.json(professorsWithMetrics);
   } catch (error) {
     console.error('Error fetching professors:', error);
     res.status(500).json({ error: 'Internal server error' });

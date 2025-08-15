@@ -41,9 +41,23 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get articles by professor ID
+// Get articles by professor ID with pagination
 router.get('/professor/:professorId', async (req, res) => {
   try {
+    const { page = 1, limit = 20 } = req.query;
+    const offset = (page - 1) * limit;
+    
+    // Get total count first
+    const { count: totalCount, error: countError } = await supabase
+      .from('research_articles')
+      .select('*', { count: 'exact', head: true })
+      .eq('professor_id', req.params.professorId);
+    
+    if (countError) {
+      return res.status(500).json({ error: countError.message });
+    }
+    
+    // Get paginated articles
     const { data, error } = await supabase
       .from('research_articles')
       .select(`
@@ -64,13 +78,14 @@ router.get('/professor/:professorId', async (req, res) => {
         )
       `)
       .eq('professor_id', req.params.professorId)
-      .order('publication_year', { ascending: false });
+      .order('publication_year', { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (error) {
       return res.status(500).json({ error: error.message });
     }
 
-    // Filter out articles without proper professor associations (same as main endpoint)
+    // Filter out articles without proper professor associations
     const validArticles = data.filter(article => article.professors && article.professors.name);
 
     // Deduplicate articles based on title to get accurate counts
@@ -78,7 +93,20 @@ router.get('/professor/:professorId', async (req, res) => {
       index === self.findIndex(a => a.title === article.title)
     );
 
-    res.json(uniqueArticles);
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalCount / limit);
+    const hasMore = page < totalPages;
+
+    res.json({
+      articles: uniqueArticles,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: totalCount,
+        totalPages,
+        hasMore
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch articles' });
   }

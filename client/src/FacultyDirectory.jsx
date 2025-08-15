@@ -25,6 +25,9 @@ const FacultyDirectory = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const navigate = useNavigate();
   
+  // Total count state
+  const [totalProfessors, setTotalProfessors] = useState(0);
+  
   // Filter states
   const [selectedUniversities, setSelectedUniversities] = useState([]);
   const [selectedFields, setSelectedFields] = useState([]);
@@ -53,33 +56,53 @@ const FacultyDirectory = () => {
     try {
       setLoading(true);
       
-      // Fetch all data concurrently instead of sequentially
-      const [professorsResponse, universitiesResponse, departmentsResponse] = await Promise.all([
-        fetch('http://localhost:5001/api/professors'),
-        fetch('http://localhost:5001/api/universities'),
-        fetch('http://localhost:5001/api/departments')
-      ]);
+      // Load all professors at once for proper sorting
+      const professorsResponse = await fetch('http://localhost:5001/api/professors?limit=1000');
+      const professorsData = await professorsResponse.json();
       
-      const [professorsData, universitiesData, departmentsData] = await Promise.all([
-        professorsResponse.json(),
-        universitiesResponse.json(),
-        departmentsResponse.json()
-      ]);
+      // Handle paginated professors response
+      if (professorsData.professors) {
+        setProfessors(professorsData.professors);
+        setTotalProfessors(professorsData.pagination.total);
+      } else {
+        // Fallback for non-paginated response
+        setProfessors(professorsData);
+        setTotalProfessors(professorsData.length);
+      }
       
-      setProfessors(professorsData);
-      setUniversities(universitiesData);
-      setDepartments(departmentsData);
+      // Stop loading here so users see professors immediately
+      setLoading(false);
       
-      // Fetch available fields and department mappings from the database
-      await fetchAvailableFields();
+      // Load filters and other data in background (non-blocking)
+      try {
+        const [universitiesResponse, departmentsResponse] = await Promise.all([
+          fetch('http://localhost:5001/api/universities'),
+          fetch('http://localhost:5001/api/departments')
+        ]);
+        
+        const [universitiesData, departmentsData] = await Promise.all([
+          universitiesResponse.json(),
+          departmentsResponse.json()
+        ]);
+        
+        setUniversities(universitiesData);
+        setDepartments(departmentsData);
+        
+        // Fetch available fields and department mappings from the database
+        await fetchAvailableFields();
+      } catch (filterErr) {
+        console.error('Error loading filters:', filterErr);
+        // Don't show error to user since main content is loaded
+      }
       
     } catch (err) {
       setError('Failed to fetch data from server');
       console.error('Error fetching data:', err);
-    } finally {
       setLoading(false);
     }
   };
+
+
 
   // Filter functions
   const toggleUniversity = (universityName) => {
@@ -132,6 +155,23 @@ const FacultyDirectory = () => {
           <div className="loading-spinner"></div>
           <div className="loading-text">Loading faculty directory...</div>
         </div>
+        
+        {/* Loading Skeleton for Professors */}
+        <div className="professors-grid">
+          {[...Array(12)].map((_, index) => (
+            <div key={index} className="professor-card-skeleton">
+              <div className="skeleton-avatar"></div>
+              <div className="skeleton-content">
+                <div className="skeleton-name"></div>
+                <div className="skeleton-position"></div>
+                <div className="skeleton-metrics">
+                  <div className="skeleton-metric"></div>
+                  <div className="skeleton-metric"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </Layout>
     );
   }
@@ -170,7 +210,7 @@ const FacultyDirectory = () => {
 
       {/* Results Count */}
       <div className="results-count">
-        Showing {sortedProfessors.length} professor{sortedProfessors.length !== 1 ? 's' : ''}
+        Showing {sortedProfessors.length} of {totalProfessors} professor{totalProfessors !== 1 ? 's' : ''}
       </div>
 
       {/* Professors Grid */}
@@ -200,6 +240,8 @@ const FacultyDirectory = () => {
           </div>
         )}
       </div>
+
+
     </Layout>
   );
 };

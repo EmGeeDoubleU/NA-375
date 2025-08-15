@@ -13,6 +13,8 @@ const PublicationsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [pagination, setPagination] = useState({ page: 1, hasMore: true });
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     // Scroll to top when page loads
@@ -20,24 +22,34 @@ const PublicationsPage = () => {
     fetchProfessorData();
   }, [professorId]);
 
-  // Add scroll listener for back to top button
+  // Add scroll listener for back to top button and infinite scroll
   useEffect(() => {
     const handleScroll = () => {
       setShowBackToTop(window.scrollY > 300);
+      
+      // Infinite scroll: load more publications when near bottom
+      if (pagination.hasMore && !loadingMore) {
+        const scrollPosition = window.scrollY + window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        
+        if (scrollPosition >= documentHeight - 100) {
+          loadMorePublications();
+        }
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [pagination.hasMore, loadingMore]);
 
   const fetchProfessorData = async () => {
     try {
       setLoading(true);
       
-      // Fetch professor details and publications concurrently
+      // Fetch professor details and first page of publications concurrently
       const [professorResponse, publicationsResponse] = await Promise.all([
         fetch(`http://localhost:5001/api/professors/${professorId}`),
-        fetch(`http://localhost:5001/api/articles/professor/${professorId}`)
+        fetch(`http://localhost:5001/api/articles/professor/${professorId}?page=1&limit=20`)
       ]);
       
       const [professorData, publicationsData] = await Promise.all([
@@ -46,13 +58,44 @@ const PublicationsPage = () => {
       ]);
       
       setProfessor(professorData);
-      setPublications(publicationsData);
+      // Extract articles array from the paginated response
+      setPublications(publicationsData.articles || publicationsData);
+      setPagination({
+        page: publicationsData.pagination?.page || 1,
+        hasMore: publicationsData.pagination?.hasMore || false
+      });
       
     } catch (err) {
       setError('Failed to fetch professor data');
       console.error('Error fetching professor data:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMorePublications = async () => {
+    if (loadingMore || !pagination.hasMore) return;
+    
+    try {
+      setLoadingMore(true);
+      const nextPage = pagination.page + 1;
+      
+      const response = await fetch(
+        `http://localhost:5001/api/articles/professor/${professorId}?page=${nextPage}&limit=20`
+      );
+      const data = await response.json();
+      
+      if (data.articles && data.articles.length > 0) {
+        setPublications(prev => [...prev, ...data.articles]);
+        setPagination({
+          page: data.pagination.page,
+          hasMore: data.pagination.hasMore
+        });
+      }
+    } catch (err) {
+      console.error('Error loading more publications:', err);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -218,6 +261,14 @@ const PublicationsPage = () => {
         ) : (
           <div className="no-publications">
             <p>No publications found for this professor.</p>
+          </div>
+        )}
+        
+        {/* Loading more indicator */}
+        {loadingMore && (
+          <div className="loading-more">
+            <div className="loading-spinner"></div>
+            <p>Loading more publications...</p>
           </div>
         )}
       </div>
