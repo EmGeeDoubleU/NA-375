@@ -4,7 +4,7 @@ import SearchBar from '../SearchBar/SearchBar';
 import FilterSidebar from '../FilterSidebar/FilterSidebar';
 import './Layout.css';
 
-const Layout = ({ children, professors = [], universities = [], selectedUniversities = [], toggleUniversity, availableFields = [], selectedFields = [], toggleField }) => {
+const Layout = ({ children, professors = [], universities = [], selectedUniversities = [], toggleUniversity, availableFields = [], selectedFields = [], toggleField, onSearchResults }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [allProfessors, setAllProfessors] = useState([]);
   const navigate = useNavigate();
@@ -13,9 +13,16 @@ const Layout = ({ children, professors = [], universities = [], selectedUniversi
   useEffect(() => {
     const fetchProfessors = async () => {
       try {
-        const response = await fetch('http://localhost:5001/api/professors');
+        const response = await fetch('http://localhost:5001/api/professors?limit=1000');
         const data = await response.json();
-        setAllProfessors(data);
+        
+        // Handle paginated response
+        if (data.professors) {
+          setAllProfessors(data.professors);
+        } else {
+          // Fallback for non-paginated response
+          setAllProfessors(data);
+        }
       } catch (error) {
         console.error('Error fetching professors for search:', error);
       }
@@ -52,7 +59,7 @@ const Layout = ({ children, professors = [], universities = [], selectedUniversi
           </button>
         </div>
         <div className="header-search">
-          <SearchBar professors={allProfessors} />
+          <SearchBar professors={allProfessors} onSearchResults={onSearchResults} />
         </div>
       </div>
 

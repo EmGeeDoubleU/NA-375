@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import ProfilePhoto from '../ProfilePhoto/ProfilePhoto';
 import './SearchBar.css';
 
-const SearchBar = ({ professors }) => {
+const SearchBar = ({ professors, onSearchResults }) => {
   const navigate = useNavigate();
+  
+
   
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -14,16 +16,30 @@ const SearchBar = ({ professors }) => {
   // Search functions
   const getSearchResults = () => {
     if (!searchQuery.trim()) return [];
+    if (!professors || !Array.isArray(professors)) {
+      console.warn('SearchBar: professors is not an array:', professors);
+      return [];
+    }
     
-    const query = searchQuery.toLowerCase();
+    const query = searchQuery.toLowerCase().trim();
+    const queryWords = query.split(' ').filter(word => word.length > 0);
+    
     return professors.filter(professor => {
-      const name = professor.name.toLowerCase();
-      const department = professor.department_name.toLowerCase();
-      const university = professor.university_name.toLowerCase();
+      if (!professor || typeof professor !== 'object') {
+        console.warn('SearchBar: invalid professor object:', professor);
+        return false;
+      }
       
-      return name.includes(query) || 
-             department.includes(query) || 
-             university.includes(query);
+      const name = (professor.name || '').toLowerCase();
+      const department = (professor.department_name || '').toLowerCase();
+      const university = (professor.university_name || '').toLowerCase();
+      
+      // Check if all query words are found in any of the searchable fields
+      return queryWords.every(word => 
+        name.includes(word) || 
+        department.includes(word) || 
+        university.includes(word)
+      );
     }).slice(0, 8); // Limit to 8 results
   };
 
@@ -47,7 +63,15 @@ const SearchBar = ({ professors }) => {
       setSelectedSearchIndex(prev => prev > 0 ? prev - 1 : -1);
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (selectedSearchIndex >= 0 && results[selectedSearchIndex]) {
+      if (results.length > 0) {
+        // Apply search results to the grid
+        if (onSearchResults) {
+          onSearchResults(results);
+        }
+        setShowSearchDropdown(false);
+        setSearchQuery('');
+        setSelectedSearchIndex(-1);
+      } else if (selectedSearchIndex >= 0 && results[selectedSearchIndex]) {
         navigateToProfessor(results[selectedSearchIndex]);
       }
     } else if (e.key === 'Escape') {
@@ -84,64 +108,82 @@ const SearchBar = ({ professors }) => {
     setSelectedSearchIndex(-1);
   };
 
-  return (
-    <div className="search-section">
-      <div className="search-container">
-        <div className="search-input-wrapper">
-          <svg className="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path fillRule="evenodd" d="M11.5 7a4.499 4.499 0 11-8.998 0A4.499 4.499 0 0111.5 7zm-.82 4.74a6 6 0 111.06-1.06l3.04 3.04a.75.75 0 11-1.06 1.06l-3.04-3.04z" clipRule="evenodd" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Search for researchers by name or university..."
-            value={searchQuery}
-            onChange={handleSearchInputChange}
-            onKeyDown={handleSearchKeyDown}
-            onFocus={handleSearchFocus}
-            onBlur={handleSearchBlur}
-            className="search-input"
-          />
-          {searchQuery && (
-            <button
-              className="search-clear"
-              onClick={clearSearch}
-            >
-              ×
-            </button>
-          )}
-        </div>
-        
-        {showSearchDropdown && (
-          <div className="search-dropdown">
-            {getSearchResults().length > 0 ? (
-              getSearchResults().map((professor, index) => (
-                <div
-                  key={professor.id}
-                  className={`search-result ${index === selectedSearchIndex ? 'selected' : ''}`}
-                  onClick={() => navigateToProfessor(professor)}
-                  onMouseEnter={() => setSelectedSearchIndex(index)}
-                >
-                  <div className="search-result-avatar">
-                    <ProfilePhoto professor={professor} />
-                  </div>
-                  <div className="search-result-info">
-                    <div className="search-result-name">{professor.name}</div>
-                    <div className="search-result-details">
-                      {professor.department_name} • {professor.university_name}
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="search-no-results">
-                No professors found matching "{searchQuery}"
-              </div>
+  try {
+    return (
+      <div className="search-section">
+        <div className="search-container">
+          <div className="search-input-wrapper">
+            <svg className="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path fillRule="evenodd" d="M11.5 7a4.499 4.499 0 11-8.998 0A4.499 4.499 0 0111.5 7zm-.82 4.74a6 6 0 111.06-1.06l3.04 3.04a.75.75 0 11-1.06 1.06l-3.04-3.04z" clipRule="evenodd" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search for researchers by name or university..."
+              value={searchQuery}
+              onChange={handleSearchInputChange}
+              onKeyDown={handleSearchKeyDown}
+              onFocus={handleSearchFocus}
+              onBlur={handleSearchBlur}
+              className="search-input"
+            />
+            {searchQuery && (
+              <button
+                className="search-clear"
+                onClick={clearSearch}
+              >
+                ×
+              </button>
             )}
           </div>
-        )}
+          
+          {showSearchDropdown && (
+            <div className="search-dropdown">
+              {getSearchResults().length > 0 ? (
+                getSearchResults().map((professor, index) => (
+                  <div
+                    key={professor.id}
+                    className={`search-result ${index === selectedSearchIndex ? 'selected' : ''}`}
+                    onClick={() => navigateToProfessor(professor)}
+                    onMouseEnter={() => setSelectedSearchIndex(index)}
+                  >
+                    <div className="search-result-avatar">
+                      <ProfilePhoto professor={professor} />
+                    </div>
+                    <div className="search-result-info">
+                      <div className="search-result-name">{professor.name}</div>
+                      <div className="search-result-details">
+                        {professor.department_name} • {professor.university_name}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="search-no-results">
+                  No professors found matching "{searchQuery}"
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  } catch (error) {
+    console.error('SearchBar render error:', error);
+    return (
+      <div className="search-section">
+        <div className="search-container">
+          <div className="search-input-wrapper">
+            <input
+              type="text"
+              placeholder="Search (error loading...)"
+              className="search-input"
+              disabled
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default SearchBar; 

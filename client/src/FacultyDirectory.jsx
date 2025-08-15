@@ -32,6 +32,9 @@ const FacultyDirectory = () => {
   const [selectedUniversities, setSelectedUniversities] = useState([]);
   const [selectedFields, setSelectedFields] = useState([]);
   
+  // Search results state
+  const [searchResults, setSearchResults] = useState(null);
+  
   // Sorting state
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState('asc');
@@ -125,6 +128,14 @@ const FacultyDirectory = () => {
     navigate(`/professor/${professorId}`);
   };
 
+  const handleSearchResults = (results) => {
+    setSearchResults(results);
+  };
+
+  const clearSearchResults = () => {
+    setSearchResults(null);
+  };
+
   const handleSort = (newSortBy) => {
     if (sortBy === newSortBy) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -143,8 +154,10 @@ const FacultyDirectory = () => {
 
   // Sort professors with top researchers first, then by the selected criteria
   const sortedProfessors = useMemo(() => {
-    return sortProfessors(professors, selectedUniversities, selectedFields, sortBy, sortOrder);
-  }, [professors, selectedUniversities, selectedFields, sortBy, sortOrder]);
+    // If search results are active, use those instead of filtered professors
+    const professorsToSort = searchResults || professors;
+    return sortProfessors(professorsToSort, selectedUniversities, selectedFields, sortBy, sortOrder);
+  }, [professors, selectedUniversities, selectedFields, sortBy, sortOrder, searchResults]);
 
   const filteredProfessors = filterProfessors(professors, selectedUniversities, selectedFields);
 
@@ -193,6 +206,7 @@ const FacultyDirectory = () => {
       availableFields={availableFields}
       selectedFields={selectedFields}
       toggleField={toggleField}
+      onSearchResults={handleSearchResults}
     >
       {/* Back to top button */}
       {showBackToTop && (
@@ -208,9 +222,28 @@ const FacultyDirectory = () => {
         onSort={handleSort}
       />
 
+      {/* Search Results Clear Button */}
+      {searchResults && (
+        <div className="search-results-header">
+          <div className="search-results-info">
+            Showing {searchResults.length} search result{searchResults.length !== 1 ? 's' : ''} for your search
+          </div>
+          <button 
+            className="clear-search-button"
+            onClick={clearSearchResults}
+          >
+            Clear Search Results
+          </button>
+        </div>
+      )}
+
       {/* Results Count */}
       <div className="results-count">
-        Showing {sortedProfessors.length} of {totalProfessors} professor{totalProfessors !== 1 ? 's' : ''}
+        {searchResults ? (
+          `Showing ${searchResults.length} search result${searchResults.length !== 1 ? 's' : ''}`
+        ) : (
+          `Showing ${sortedProfessors.length} of ${totalProfessors} professor${totalProfessors !== 1 ? 's' : ''}`
+        )}
       </div>
 
       {/* Professors Grid */}
