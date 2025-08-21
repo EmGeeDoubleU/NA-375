@@ -140,4 +140,3 @@ coverage.xml
 .pytest_cache/
 
 # Data collection scripts (keep local only)
-Scripts/
