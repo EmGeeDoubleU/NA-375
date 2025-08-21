@@ -162,14 +162,53 @@ The application is set up for easy development:
 
 ## Environment Variables
 
-Create a `.env` file in the server directory:
+### Server Environment Setup
 
-```env
-PORT=5001
-NODE_ENV=development
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-```
+1. **Copy the example environment file:**
+   ```bash
+   cd server
+   cp env.example .env
+   ```
+
+2. **Fill in your Supabase credentials in `server/.env`:**
+   ```env
+   # Supabase Configuration
+   SUPABASE_URL=your_supabase_url_here
+   SUPABASE_ANON_KEY=your_supabase_anon_key_here
+   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key_here
+   
+   # Server Configuration
+   PORT=5001
+   NODE_ENV=development
+   
+   # API Configuration
+   API_BASE_URL=http://localhost:5001/api
+   ```
+
+### Client Environment Setup
+
+1. **Copy the example environment file:**
+   ```bash
+   cd client
+   cp env.example .env.local
+   ```
+
+2. **Configure the API base URL in `client/.env.local`:**
+   ```env
+   # API Configuration
+   VITE_API_BASE_URL=http://localhost:5001/api
+   
+   # For production, change to your deployed server URL
+   # VITE_API_BASE_URL=https://your-deployed-server.com/api
+   ```
+
+### Security Notes
+
+⚠️ **IMPORTANT**: Never commit your `.env` files to version control. They contain sensitive information like database credentials.
+
+- The `.env` files are already added to `.gitignore`
+- Use `env.example` files as templates for required environment variables
+- Keep your Supabase keys secure and rotate them if compromised
 
 ## Troubleshooting
 
