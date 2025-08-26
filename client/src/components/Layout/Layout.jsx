@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from '../SearchBar/SearchBar';
 import FilterSidebar from '../FilterSidebar/FilterSidebar';
+import Login from '../Login/Login';
 import './Layout.css';
 
 const Layout = ({ children, professors = [], universities = [], selectedUniversities = [], toggleUniversity, availableFields = [], selectedFields = [], toggleField, onSearchResults }) => {
@@ -60,6 +61,9 @@ const Layout = ({ children, professors = [], universities = [], selectedUniversi
         </div>
         <div className="header-search">
           <SearchBar professors={allProfessors} onSearchResults={onSearchResults} />
+        </div>
+        <div className="loginSection">
+          <Login></Login>
         </div>
       </div>
 
