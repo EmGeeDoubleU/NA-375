@@ -15,7 +15,7 @@
     border-radius: 10px;
     background-color: rgba(121, 223, 255, 0.3);
     border: 1px solid rgba(45, 45, 45, 0.5);
-    height: 35px;
+    height: 25px;
     width: 70px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
